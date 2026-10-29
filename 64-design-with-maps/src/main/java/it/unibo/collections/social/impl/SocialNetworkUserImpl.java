@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,7 +51,10 @@ public final class SocialNetworkUserImpl<U extends User> extends UserImpl implem
      * - username
      * - age and every other necessary field
      */
+
+    private Map<String,List<U>> userMap;
     /**
+     
      * Builds a user participating in a social network.
      *
      * @param name
@@ -64,12 +68,17 @@ public final class SocialNetworkUserImpl<U extends User> extends UserImpl implem
      *            application
      */
     public SocialNetworkUserImpl(final String name, final String surname, final String user, final int userAge) {
-        super(null, null, null, 0);
+        super(name, surname, user, userAge);
+        userMap = new HashMap();
     }
 
     /*
      * 2) Define a further constructor where the age defaults to -1
      */
+    public SocialNetworkUserImpl(final String name, final String surname, final String user){
+        super(name, surname, user);
+        userMap = new HashMap();
+    }
 
     /*
      * [METHODS]
@@ -78,6 +87,17 @@ public final class SocialNetworkUserImpl<U extends User> extends UserImpl implem
      */
     @Override
     public boolean addFollowedUser(final String circle, final U user) {
+        // Controllo se esiste gia il circolo
+        if(!userMap.containsKey(circle)){
+            userMap.put(circle, new LinkedList<>());
+        }
+        
+
+        // controllo se esiste gia l'user e nel caso lo crea.
+        if(!userMap.get(circle).contains(user)){
+            userMap.get(circle).add(user);
+            return true;
+        }
         return false;
     }
 
@@ -88,11 +108,19 @@ public final class SocialNetworkUserImpl<U extends User> extends UserImpl implem
      */
     @Override
     public Collection<U> getFollowedUsersInGroup(final String groupName) {
-        return null;
+        if(userMap.containsKey(groupName)){
+            return new LinkedList<U>(userMap.get(groupName));
+        }
+        
+        return new LinkedList<U>();
     }
 
     @Override
     public List<U> getFollowedUsers() {
-        return null;
+        List<U> l = new LinkedList<>();
+        for(List<U> o : userMap.values()){
+            l.addAll(o);   
+        }
+        return l;
     }
 }
